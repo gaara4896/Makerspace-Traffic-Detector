@@ -6,15 +6,13 @@
 //static const bool useEmulator = false;      //  Set to true if using UnaBiz Emulator.
 //static const String device = "2C3068";       //  Set this to your device name if you're using UnaBiz Emulator.
 //static const bool echo = true;              //  Set to true if the Sigfox library should display the executed commands.
-//static String response;
 
 //static UnaShieldV2S transceiver(country, useEmulator, device, echo);  //Create transceiver object
 
-const unsigned int transmit_message_interval = 5;                      //Sets the duration of the interval (in minutes) between successive message transmissions.
+const unsigned int transmit_message_interval = 5;                      //Sets the duration of the interval (in seconds) between successive message transmissions.
 unsigned long previous_timestamp_m = 0L;                                //Timestamp of the beginning of the previous iteration of void loop() in milliseconds.
 unsigned long previous_iteration_duration = 0L;                          //Duration of execution of previous iteration of void loop() in milliseconds.
-long countdown = transmit_message_interval * 1000L;                //Countdown timer for message transmission. **REMEMBER TO CHANGE BACK TO MINUTES
-
+long countdown = transmit_message_interval * 1000L;                //Countdown timer for message transmission. 
 unsigned int counter = 0;
 unsigned long duration_low = 0L;
 bool blocking_flag =  false;
@@ -23,7 +21,7 @@ const unsigned long TIMEOUT_LENGTH = 100000L;
 void setup()
 {
   pinMode(INPUT_PIN, INPUT);
-  Serial.begin(9600);
+  Serial.begin(115200);
 //  if(!transceiver.begin())
 //  {
 //    stop(F("Unable to init Sigfox module, something is missing"));
@@ -32,9 +30,6 @@ void setup()
   {
     ; // wait for serial port to connect. Needed for native USB
   }
-//  transceiver.sendMessageAndGetResponse("0102030405060708090a0b0c", response);
-//  Serial.print(F("gvyvgjkbkhjkgvjghvy is "));
-//  Serial.println(response);
 }
 
 unsigned int count_when_blocking()
@@ -65,14 +60,12 @@ unsigned int count_when_blocking()
     {
       blocking_control = 0; 
       blocking_time_m += 95;
-//      Serial.println(blocking_time_m);
       if(blocking_time_m >= 2000)
       {
         count += 1;
         blocking_time_m = 0;
       }
     }
-//    Serial.println(count);
   }
   
   return count;
@@ -103,22 +96,17 @@ void loop()
       blocking_flag = true;
       counter += count_when_blocking();
   }
-
   if(countdown <= 0){
-//    Serial.print("Sending counter = ");
-//    Serial.println(counter);
 //    transceiver.sendString(String(counter));
     writeCounterToSerial(counter);
 
 
     //Reset after sending counter.
     counter = 0;
-    countdown = transmit_message_interval * 1000L; //REMEMBER TO RESET BACK TO MINUTES
+    countdown = transmit_message_interval * 1000L;
     duration_low = 0L;
     blocking_flag =  false;
   }
-  
-//  Serial.println(counter);
 }
 
 
